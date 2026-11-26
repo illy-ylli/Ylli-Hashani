@@ -30,7 +30,9 @@ export default function App() {
   const [lite, setLite] = useState(false)
   const [staticView, setStaticView] = useState(false)
   const [projectIndex, setProjectIndex] = useState(0)
-  const low = handheld || lite || reducedMotion
+  const [allowMotion, setAllowMotion] = useState(false)
+  const still = reducedMotion && !allowMotion
+  const low = handheld || lite
   const showScene = supported && !failed && !staticView
   const markReady = useCallback(() => setReady(true), [])
   const markFailed = useCallback(() => setFailed(true), [])
@@ -48,7 +50,7 @@ export default function App() {
       {showScene && <div className="world-canvas">
         <SceneBoundary onFail={markFailed}>
           <Suspense fallback={null}>
-            <Experience input={input} low={low} still={reducedMotion} onReady={markReady}
+            <Experience input={input} low={low} still={still} onReady={markReady}
               onFail={markFailed} onSlow={lowerQuality} projectIndex={projectIndex} />
           </Suspense>
         </SceneBoundary>
@@ -58,6 +60,8 @@ export default function App() {
     <PortfolioSections projectIndex={projectIndex} selectProject={setProjectIndex} />
     <div className="view-controls">
       {showScene && !ready && <span role="status"><i className="brand-orb" /> Loading 3D world</span>}
+      {showScene && reducedMotion && <button type="button" className="view-button"
+        onClick={() => setAllowMotion((value) => !value)}>{still ? 'Enable 3D motion' : 'Use reduced motion'}</button>}
       {!supported || failed ? <span>Static view</span>
         : <button type="button" className="view-button"
           onClick={() => { setReady(false); setStaticView((value) => !value) }}>
